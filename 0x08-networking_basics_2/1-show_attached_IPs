@@ -1,2 +1,4 @@
 #!/usr/bin/env bash
-netstat -tn | tail -n +3 | awk '{print $5}'
+# Displays all acive IPv4 addresses.
+
+ifconfig -a | grep "inet addr" | cut -d " " -f12 | cut -d ":" -f2
