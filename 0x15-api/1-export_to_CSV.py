@@ -1,22 +1,35 @@
 #!/usr/bin/python3
-# using this REST API, for a given employee ID,
-# returns information about his/her TODO list progress
-# to export data in the CSV format.
-import csv
+
+"""
+Python script that exports data in the CSV format
+"""
+
 from requests import get
 from sys import argv
-
-
-def api_to_csv(user_id):
-    url = "https://jsonplaceholder.typicode.com/"
-    user = get(url + "users/{}".format(user_id)).json()
-    tasks = get(url + "todos?userId={}".format(user_id)).json()
-    with open("{}.csv".format(user_id), 'w', newline='') as csvfile:
-        file_stream = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
-        for task in tasks:
-            file_stream.writerow([user_id, user.get("username"),
-                                  task.get("completed"),
-                                  task.get("title")])
+import csv
 
 if __name__ == "__main__":
-    api_to_csv(int(argv[1]))
+    response = get('https://jsonplaceholder.typicode.com/todos/')
+    data = response.json()
+
+    row = []
+    response2 = get('https://jsonplaceholder.typicode.com/users')
+    data2 = response2.json()
+
+    for i in data2:
+        if i['id'] == int(argv[1]):
+            employee = i['username']
+
+    with open(argv[1] + '.csv', 'w', newline='') as file:
+        writ = csv.writer(file, quoting=csv.QUOTE_ALL)
+
+        for i in data:
+
+            row = []
+            if i['userId'] == int(argv[1]):
+                row.append(i['userId'])
+                row.append(employee)
+                row.append(i['completed'])
+                row.append(i['title'])
+
+                writ.writerow(row)

@@ -1,25 +1,41 @@
 #!/usr/bin/python3
-# using this REST API, for a given employee ID,
-# returns information about his/her TODO list progress
-# to export data in the JSON format.
-import json
+
+"""
+Python script that exports data in the JSON format.
+"""
+
 from requests import get
 from sys import argv
-
-
-def api_to_json(user_id):
-    task_list = []
-    url = "https://jsonplaceholder.typicode.com/"
-    user = get(url + "users/{}".format(user_id)).json()
-    tasks = get(url + "todos?userId={}".format(user_id)).json()
-    for task in tasks:
-        tdict = {}
-        tdict["task"] = task.get("title")
-        tdict["completed"] = task.get("completed")
-        tdict["username"] = user.get("username")
-        task_list.append(tdict)
-    with open("{}.json".format(user_id), 'w', newline='') as json_file:
-        json.dump({argv[1]: task_list}, json_file)
+import json
 
 if __name__ == "__main__":
-    api_to_json(int(argv[1]))
+    response = get('https://jsonplaceholder.typicode.com/todos/')
+    data = response.json()
+
+    row = []
+    response2 = get('https://jsonplaceholder.typicode.com/users')
+    data2 = response2.json()
+
+    for i in data2:
+        if i['id'] == int(argv[1]):
+            u_name = i['username']
+            id_no = i['id']
+
+    row = []
+
+    for i in data:
+
+        new_dict = {}
+
+        if i['userId'] == int(argv[1]):
+            new_dict['username'] = u_name
+            new_dict['task'] = i['title']
+            new_dict['completed'] = i['completed']
+            row.append(new_dict)
+
+    final_dict = {}
+    final_dict[id_no] = row
+    json_obj = json.dumps(final_dict)
+
+    with open(argv[1] + ".json",  "w") as f:
+        f.write(json_obj)
