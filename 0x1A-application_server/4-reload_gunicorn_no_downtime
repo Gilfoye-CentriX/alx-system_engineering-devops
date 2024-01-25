@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Script to gracefully reload Gunicorn
+
+# Path to the Gunicorn PID file
+PID_FILE="/path/to/gunicorn.pid"
+
+# Path to the Gunicorn executable
+GUNICORN_EXEC="/path/to/venv/bin/gunicorn"  # Replace with the actual path
+
+# Number of workers to gracefully reload
+NUM_WORKERS=3  # Adjust as needed
+
+# Gracefully reload Gunicorn
+echo "Gracefully reloading Gunicorn..."
+
+# Send a graceful shutdown signal to the old workers
+$GUNICORN_EXEC -c /path/to/gunicorn_config.py -p $PID_FILE -k gevent --workers $NUM_WORKERS --graceful-timeout 30 --reload
+
+# Wait for a short duration to allow old workers to finish processing
+sleep 5
+
+# Start new workers with the updated application code or configuration
+$GUNICORN_EXEC -c /path/to/gunicorn_config.py -p $PID_FILE -k gevent --workers $NUM_WORKERS --reload
+
+echo "Gunicorn gracefully reload completed."
